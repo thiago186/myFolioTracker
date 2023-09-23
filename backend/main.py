@@ -1,5 +1,4 @@
 import os
-# import jwt
 import logging
 
 
@@ -8,8 +7,9 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 
-from dependencies.utils.hash import encrypt_password, verify_password
+from dependencies.utils.hash import encrypt_field, verify_field
 import dependencies.models.users as models_users
+from dependencies.models.auth import JWToken
 from dependencies.business_logic.authentication import authenticate_user
 from dependencies.services.connectors.postgres_sql import (
     register_user,
@@ -34,21 +34,37 @@ print("Staarting app...")
 
 @app.post("/users/register_user/")
 async def register_user_endpoint(user: models_users.UserToRegister):
+    """
+    Register the received user in the database if it doesn't exists yet.
+    """
+
     user_exists = await get_user_by_email(user.email)
     if user_exists:
         raise HTTPException(status_code=409, detail="Email already registered")
     else:
-        user.hashed_password = encrypt_password(user.password)
+        user.hashed_password = encrypt_field(user.password)
         try: 
             await register_user(user)
             return {"status_code": 201, "detail": "User created"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/users/get_auth/")
-async def authenticate_user(user: models_users.UserToLogin):
+
+@app.post("/users/get_auth/")
+async def authenticate_user_endpoint(user: models_users.UserToLogin):
+    """
+    Receives email and password and returns a jwt token if user is authenticated.
+    """
+    print(f"received user: {user}")
     authentication = await authenticate_user(user)
     if authentication:
         return authentication
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+
+@app.post("/users/validate_token/")
+async def validate_jwt_endpoint(token: JWToken):
+    """
+    Validates the jwt token
+    """

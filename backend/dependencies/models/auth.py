@@ -6,5 +6,5 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class JWToken(BaseModel):
-    access_token: str
-    token_type: str
+    """JWT to be received for validation for endpoints"""
+    token: str

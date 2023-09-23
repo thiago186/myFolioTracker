@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 from dependencies.models.users import UserToRegister
 from dependencies.services.connectors.db_table_models import Users
-from dependencies.utils.hash import encrypt_password, verify_password
+from dependencies.utils.hash import encrypt_field, verify_field
 
 
 load_dotenv()
@@ -26,7 +26,7 @@ async def reset_tables(password):
     """
     Reset all the tables in the database. This function is only available for the admin user.
     """
-    if verify_password(password, os.environ["USERS_RESET_PASSWORD_ENCRYPTED"]):
+    if verify_field(password, os.environ["USERS_RESET_PASSWORD_ENCRYPTED"]):
         SQLModel.metadata.drop_all(engine)
         SQLModel.metadata.create_all(engine)
     else:
