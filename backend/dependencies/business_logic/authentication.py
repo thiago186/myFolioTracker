@@ -40,7 +40,6 @@ async def authenticate_token(token: JWToken):
             key=os.environ["JWT_SECRET_KEY"],
             algorithms=[os.environ['JWT_ALGORITHM']]
         )
-        
 
     except :jwt.ExpiredSignatureError:
         return {"authenticated": False, "reason": "Token expired"}
