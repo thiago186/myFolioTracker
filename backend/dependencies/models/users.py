@@ -7,6 +7,10 @@ from pydantic import BaseModel
 from typing import Optional
 from pydantic.fields import Field
 
+class UserToLogin(BaseModel):
+    """User received on the login endpoint"""
+    email: str
+    password: str
 
 class UserToRegister(BaseModel):
     """

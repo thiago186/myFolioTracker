@@ -2,13 +2,13 @@
 Module for PostgreSQL related operations.
 """
 import os
-from sqlmodel import create_engine, SQLModel, Session
+from sqlmodel import create_engine, SQLModel, Session, select
 from dotenv import load_dotenv
 
 
-from dependencies.models.users.users import UserToRegister
+from dependencies.models.users import UserToRegister
 from dependencies.services.connectors.db_table_models import Users
-from dependencies.utils.hashing import encrypt_password
+from dependencies.utils.hash import encrypt_password, verify_password
 
 
 load_dotenv()
@@ -20,13 +20,13 @@ POSTGRESQL_URL = (
     f'/{os.environ["POSTGRES_DB"]}'
 )
 
-engine = create_engine(POSTGRESQL_URL, echo=True)
+engine = create_engine(POSTGRESQL_URL, echo=os.environ["SQL_ECHO"].lower()=="true")
 
 async def reset_tables(password):
     """
     Reset all the tables in the database. This function is only available for the admin user.
     """
-    if encrypt_password(password) == os.environ["USERS_RESET_PASSWORD_ENCRYPTED"]:
+    if verify_password(password, os.environ["USERS_RESET_PASSWORD_ENCRYPTED"]):
         SQLModel.metadata.drop_all(engine)
         SQLModel.metadata.create_all(engine)
     else:
@@ -51,3 +51,11 @@ async def register_user(user_infos: UserToRegister):
         session.add(user)
         session.commit()
 
+async def get_user_by_email(email):
+    """
+    Get a user by its email.
+    """
+    with Session(engine) as session:
+        statement = select(Users).where(Users.email == email)
+        users = session.exec(statement)
+        return users.first()

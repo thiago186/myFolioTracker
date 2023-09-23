@@ -1,6 +1,11 @@
-import bcrypt
 import os
+
+import bcrypt
+import jwt
 from dotenv import load_dotenv
+
+from dependencies.models.users import UserToLogin
+
 load_dotenv()
 
 def encrypt_password(password: str):

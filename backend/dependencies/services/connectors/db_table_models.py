@@ -30,7 +30,10 @@ class TimestampModel(SQLModel):
 class UserBase(SQLModel):
     """Base class for all user models"""
     username:str = Field(nullable=False)
-    email:str = Field(nullable=False)
+    email:str = Field(
+        unique=True,
+        nullable=False
+    )
     hashed_password: str
     last_login: Optional[datetime] = None
     is_active: bool = True
