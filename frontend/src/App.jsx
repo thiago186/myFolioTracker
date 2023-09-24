@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import './App.css'
 
-import LoginForm from './organisms/LoginForm'
+import LoginPage from './pages/LoginPage'
 
 function App() {
  return <div>
-  <LoginForm/>
+  <LoginPage/>
  </div> 
 }
 

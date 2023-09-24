@@ -1,0 +1,8 @@
+.login-card-container{
+    background-color: rgb(47, 25, 71);
+    padding: 20px; /* Adjust as needed for desired spacing */
+    border-radius: 8px; /* Optional: Adds rounded corners */
+    max-width: 340px; /* Adjust based on the size of your LoginForm plus padding */
+    margin: 0 auto; /* Center the container horizontally */
+}
+    
