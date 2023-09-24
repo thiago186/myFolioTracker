@@ -1,0 +1,15 @@
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center
+    gap: 16px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .email-password-block{
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* or any desired gap between the email and password fields */
+    align-items: stretch; /* makes sure children take full width */
+}

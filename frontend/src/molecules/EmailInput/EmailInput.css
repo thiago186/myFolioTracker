@@ -1,0 +1,16 @@
+.email-input-wrapper label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.email-input-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+  
+
+  
