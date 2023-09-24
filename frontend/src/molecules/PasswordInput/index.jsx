@@ -5,7 +5,7 @@ import './PasswordInput.css';
 function PasswordInput({ ...props }) {
   return (
     <div className="password-input-wrapper">
-      <label htmlFor="passwordInputField">Password</label>
+      <label htmlFor="passwordInputField">Senha</label>
       <InputField 
         id="passwordInputField"
         type="password" 
