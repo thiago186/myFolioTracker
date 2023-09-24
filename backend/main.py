@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from dependencies.utils.hash import encrypt_field, verify_field
 import dependencies.models.users as models_users
@@ -58,7 +59,16 @@ async def authenticate_user_endpoint(user: models_users.UserToLogin):
     print(f"received user: {user}")
     authentication = await authenticate_user(user)
     if authentication:
-        return authentication
+        response = JSONResponse(content="User Authenticated")
+        response.set_cookie(
+            key="jwt",
+            value=authentication["token"],
+            httponly=True,
+            max_age=os.environ['JWT_EXPIRATION_TIME'],
+            secure=True,
+            samesite="strict"
+        )
+        return response
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     

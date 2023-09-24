@@ -25,7 +25,7 @@ async def authenticate_user(user: UserToLogin):
 
     token = jwt.encode(
         payload={
-            "sub": db_user.id,
+            "sub": str(db_user.id),
             "exp": time.time() + float(os.environ['JWT_EXPIRATION_TIME']),
             },
         key=os.environ["JWT_SECRET_KEY"], 
@@ -41,7 +41,7 @@ async def authenticate_token(token: JWToken):
             algorithms=[os.environ['JWT_ALGORITHM']]
         )
 
-    except :jwt.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError:
         return {"authenticated": False, "reason": "Token expired"}
     except jwt.InvalidTokenError:
         return {"authenticated": False, "reason": "Invalid token"}
