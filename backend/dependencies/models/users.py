@@ -17,18 +17,18 @@ class UserToRegister(BaseModel):
     User class to be received on the API endpoint.
     The password received is not hashed yet.
     """
-    user_id: UUID = Field(
-        default_factory=uuid4
-    )
-    username: str
     email: str
     password: str
+    user_id: Optional[UUID] = Field(
+        default_factory=uuid4
+    )
+    username: Optional[str]
     hashed_password: Optional[str] = None
     created_at: Optional[datetime] = Field(
         default_factory=datetime.now,
     )
     last_login: Optional[datetime]
-    is_admin: bool = False
+    is_admin: Optional[bool] = False
     is_active: Optional[bool] = True
     role : Optional[str] = "commonuser"
 

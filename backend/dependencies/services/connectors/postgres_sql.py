@@ -22,7 +22,7 @@ POSTGRESQL_URL = (
 
 engine = create_engine(POSTGRESQL_URL, echo=os.environ["SQL_ECHO"].lower()=="true")
 
-async def reset_tables(password):
+def reset_tables(password):
     """
     Reset all the tables in the database. This function is only available for the admin user.
     """
