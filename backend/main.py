@@ -60,7 +60,7 @@ async def register_user_endpoint(user: models_users.UserToRegister):
     """
 
     user_exists = await get_user_by_email(user.email)
-    print(f"user_exists: {user_exists}")
+    # print(f"user_exists: {user_exists}")
     if user_exists:
         raise HTTPException(status_code=409, detail="Email already registered")
     else:

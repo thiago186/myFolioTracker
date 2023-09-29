@@ -4,11 +4,15 @@ import EmailInput from '../../molecules/EmailInput';
 import PasswordInput from '../../molecules/PasswordInput';
 import Button from '../../atoms/Button';
 import './LoginForm.css';  
-import useFetch from '../../hooks/useFetch';
+import useSubmit from '../../hooks/useSubmit';
+import axios from 'axios';
+
 
 function LoginForm({ onLoginSuccess, onLoginFailure}) {
     const [credentials, setCredentials] = useState({ email: "", password: "" });
-    const {data, error, isLoading} = useFetch();
+    const [responseData, setResponseData] = useState(null);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -17,33 +21,34 @@ function LoginForm({ onLoginSuccess, onLoginFailure}) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        axios.post(`${import.meta.env.VITE_API_URL}/users/login`, credentials)
+            .then((responseData) => {
+                setResponseData(responseData);
+                onLoginSuccess();
+            })
+            .catch((error) => {
+                setError(error);
+                onLoginFailure(error);
+            }).finally(() => {
+                setIsLoading(false);
+            })
         
-        const {error} = await useFetch(`${import.meta.env.VITE_API_URL}/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(credentials)
-        });
-
-        if (error){
-            onLoginFailure(error);
-        } else{
-            onLoginSuccess();
-        }
     }
 
 
     return (
         <div>
-            {error && <div className="error-alert">Invalid Credentials</div>}
             <form className="login-form" onSubmit={handleSubmit}>
             <h1>Login 🚀</h1>
             <div className='email-password-block'>
-                <EmailInput onChange={handleChange}/>
-                <PasswordInput onChange={handleChange}/>
+                <EmailInput onChange={handleChange} type="email" name="email"/>
+                <PasswordInput onChange={handleChange} type="password" name="password"/>
             </div>
-            <Button type="submit">Login</Button>
+            {error && <div className="invalid-credentials">
+                Email ou senha incorretos. Por favor, tente novamente
+            </div>}
+            <Button type="submit" disabled={isLoading}>Login</Button>
             </form>
         </div>
         
