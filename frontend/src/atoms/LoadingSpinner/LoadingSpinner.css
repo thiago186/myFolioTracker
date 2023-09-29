@@ -1,0 +1,14 @@
+.loading-spinner {
+        border: 6px solid rgba(128,0,128,.1);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border-top: 6px solid #800080;
+        animation: spin 1s linear infinite;
+    }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
