@@ -3,9 +3,22 @@ from datetime import datetime
 from uuid import uuid4
 from uuid import UUID
 
+from fastapi import HTTPException, status
 from pydantic import BaseModel
-from typing import Optional
 from pydantic.fields import Field
+from typing import Optional
+
+
+class CredentialsException(HTTPException):
+    """
+    Exception raised for invalid credentials.
+
+    Attributes:
+        status_code -- HTTP status code for the exception
+        detail -- explanation of the error
+    """
+    def __init__(self):
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
 class UserToLogin(BaseModel):
     """User received on the login endpoint"""

@@ -3,7 +3,7 @@ import logging
 
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Cookie, FastAPI, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,11 +11,15 @@ from fastapi.responses import JSONResponse
 from dependencies.utils.hash import encrypt_field, verify_field
 import dependencies.models.users as models_users
 from dependencies.models.auth import JWToken
-from dependencies.business_logic.authentication import authenticate_user
+from dependencies.business_logic.authentication import (
+    authenticate_user,
+    authenticate_token
+)
 from dependencies.services.connectors.postgres_sql import (
     register_user,
     get_user_by_email
 )
+
 
 load_dotenv()
 logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
@@ -82,7 +86,7 @@ async def authenticate_user_endpoint(user: models_users.UserToLogin):
     if authentication:
         response = JSONResponse(content="User Authenticated")
         response.set_cookie(
-            key="jwt",
+            key="token",
             value=authentication["token"],
             httponly=True,
             max_age=os.environ['JWT_EXPIRATION_TIME'],
@@ -94,8 +98,15 @@ async def authenticate_user_endpoint(user: models_users.UserToLogin):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
 
-@app.post("/users/validate_token/")
-async def validate_jwt_endpoint(token: JWToken):
+@app.get("/users/validate_token/")
+async def validate_jwt_endpoint(token: str = Cookie(None)):
     """
-    Validates the jwt token
+    Validates if the jwt received on the cookies are valid or not
     """
+    if token is None:
+        print('entered exception')
+        raise models_users.CredentialsException()
+    else: 
+        print(f'token: {token}')
+        return await authenticate_token(token)
+
