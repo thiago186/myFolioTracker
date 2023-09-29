@@ -23,6 +23,23 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(level
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://localhost:8082",
+    "*",
+    "http://localhost"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 # TODO: Define or import 'User' and 'users' before using them
 # For example:
 # class User(BaseModel):
@@ -51,7 +68,7 @@ async def register_user_endpoint(user: models_users.UserToRegister):
             raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/users/get_auth/")
+@app.post("/users/login/")
 async def authenticate_user_endpoint(user: models_users.UserToLogin):
     """
     Receives email and password and returns a jwt token if user is authenticated.
