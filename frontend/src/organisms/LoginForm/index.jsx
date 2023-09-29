@@ -22,7 +22,7 @@ function LoginForm({ onLoginSuccess, onLoginFailure}) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        axios.post(`${import.meta.env.VITE_API_URL}/users/login`, credentials)
+        axios.post(`${import.meta.env.VITE_API_URL}/users/login`, credentials, {withCredentials: true})
             .then((responseData) => {
                 setResponseData(responseData);
                 onLoginSuccess();
