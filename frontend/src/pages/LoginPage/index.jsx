@@ -6,7 +6,7 @@ function LoginPage() {
   return (
     <div className="LoginPage">
       <div className="login-card-container">
-      <LoginForm/>
+      <LoginForm />
       </div>
     </div>
   )

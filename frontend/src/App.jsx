@@ -5,11 +5,13 @@ import { BrowserRouter, Routes, Route} from 'react-router-dom';
 
 import LoginPage from './pages/LoginPage';
 import LoadingSpinner from './atoms/LoadingSpinner';
-import NotLoggedPage from './pages/LoginPage/NotLoggedPage';
+import NotLoggedPage from './pages/NotLoggedPage';
 import NotFoundPage from './pages/NotFoundPage';
+// import { defineConfig, loadEnv } from 'vite';
 
 function App() {
  return <div>
+    <p> URL: {import.meta.env.VITE_API_URL}</p>
     <BrowserRouter>
         <Routes>
         <Route path="/login" element={<LoginPage />} />
