@@ -46,4 +46,6 @@ async def authenticate_token(token: str):
         return {"authenticated": False, "reason": "Token expired"}
     except jwt.InvalidTokenError:
         return {"authenticated": False, "reason": "Invalid token"}
+
+
     

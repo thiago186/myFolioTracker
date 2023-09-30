@@ -102,8 +102,15 @@ async def validate_jwt_endpoint(request: Request):
     """
     Validates if the jwt received on the cookies are valid or not
     """
-    print(request.cookies)
-
+    token = request.cookies.get("token")
+    if token:
+        if token.startswith("Bearer "):
+            token = token[7:]
+        authentication = await authenticate_token(token)
+        if authentication["authenticated"]:
+            return {"detail": "Token is valid"}
+    else:
+        raise HTTPException(status_code=401, detail="Token not provided")
     # if token is None:
     #     print('entered exception')
     #     raise models_users.CredentialsException()

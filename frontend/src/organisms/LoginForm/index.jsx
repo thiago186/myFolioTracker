@@ -35,7 +35,6 @@ function LoginForm({ onLoginSuccess, onLoginFailure}) {
             }).finally(() => {
                 setIsLoading(false);
             })
-        
     }
 
 
