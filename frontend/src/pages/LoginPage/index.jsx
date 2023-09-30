@@ -7,7 +7,7 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const handleLoginSuccess = () => {
-    navigate("/home");
+    // navigate("/home");
   }
   const handleLoginFailure = (error) => {
     console.log("Login failed", error);

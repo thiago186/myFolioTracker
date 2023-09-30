@@ -25,6 +25,8 @@ function LoginForm({ onLoginSuccess, onLoginFailure}) {
         axios.post(`${import.meta.env.VITE_API_URL}/users/login`, credentials, {withCredentials: true})
             .then((responseData) => {
                 setResponseData(responseData);
+                document.cookie = `token=${responseData.data}`;
+                console.log("responseData with success ", responseData);
                 onLoginSuccess();
             })
             .catch((error) => {

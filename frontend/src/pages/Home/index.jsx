@@ -2,18 +2,41 @@ import React from 'react';
 
 import useFetch from '../../hooks/useFetch';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function Home() {
     const navigate = useNavigate();
+    const [data, setData] = useState(null);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const handleClick = () => {
         navigate('/login');
     }
 
-    const { data, error, isLoading} = useFetch(
-        `${import.meta.env.VITE_API_URL}/users/validate_token`, {withCredentials: true}
-    );
-    
+    const validateToken = () => {
+        setIsLoading(true);
+        axios
+        .get(
+            `${import.meta.env.VITE_API_URL}/users/validate_token`, 
+            {
+            withCredentials: true, // Isso é suficiente para enviar o cookie automaticamente
+        })
+          .then((response) => {
+            setIsLoading(false);
+            setData(response);
+          })
+          .catch((error) => {
+            setIsLoading(false);
+            setError(error);
+          });
+    }
+
+    useEffect(() => {
+        console.log("inside");
+        validateToken();
+    }, []);
+
     if (error) {
         console.log(error)
         return (

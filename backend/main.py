@@ -3,7 +3,7 @@ import logging
 
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, Cookie, FastAPI, HTTPException, status
+from fastapi import BackgroundTasks, Cookie, FastAPI, HTTPException, status, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -83,25 +83,28 @@ async def authenticate_user_endpoint(user: models_users.UserToLogin):
     print(f"received user: {user}")
     authentication = await authenticate_user(user)
     if authentication:
-        response = JSONResponse(content="User Authenticated")
+        response = JSONResponse(content=authentication["token"])
         response.set_cookie(
             key="token",
             value=authentication["token"],
             httponly=True,
-            max_age=os.environ['JWT_EXPIRATION_TIME'],
-            secure=True,
-            samesite="strict"
+            max_age=int(os.environ['JWT_EXPIRATION_TIME']),
+            secure=False,
+            samesite="None"
         )
+
         return response
     else:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
 
 @app.get("/users/validate_token/")
-async def validate_jwt_endpoint(token: str = Cookie(None)):
+async def validate_jwt_endpoint(request: Request, token: str = Cookie(None)):
     """
     Validates if the jwt received on the cookies are valid or not
     """
+    print(f'request: {request.__dict__}')
+    print(f'received token: {token}')
     if token is None:
         print('entered exception')
         raise models_users.CredentialsException()
