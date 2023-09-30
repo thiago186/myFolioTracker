@@ -20,8 +20,9 @@ function Home() {
         .get(
             `${import.meta.env.VITE_API_URL}/users/validate_token`, 
             {
-            withCredentials: true, // Isso é suficiente para enviar o cookie automaticamente
-        })
+                withCredentials: true
+            }
+        )
           .then((response) => {
             setIsLoading(false);
             setData(response);

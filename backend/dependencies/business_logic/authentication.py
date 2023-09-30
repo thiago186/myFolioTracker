@@ -31,7 +31,7 @@ async def authenticate_user(user: UserToLogin):
         key=os.environ["JWT_SECRET_KEY"], 
         algorithm=os.environ['JWT_ALGORITHM']
     )
-    return {"token": token}
+    return token
 
 async def authenticate_token(token: str):
     try:

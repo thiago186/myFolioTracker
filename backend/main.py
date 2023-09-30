@@ -3,10 +3,12 @@ import logging
 
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, Cookie, FastAPI, HTTPException, status, Request
+from fastapi import BackgroundTasks, Cookie, FastAPI, HTTPException, status, Request, Response, Header, Depends
 from fastapi.encoders import jsonable_encoder
+from fastapi.security  import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
 
 from dependencies.utils.hash import encrypt_field, verify_field
 import dependencies.models.users as models_users
@@ -26,6 +28,7 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(level
 
 
 app = FastAPI()
+security = HTTPBearer()
 
 origins = [
     "http://localhost:3000",
@@ -76,39 +79,35 @@ async def register_user_endpoint(user: models_users.UserToRegister):
 
 
 @app.post("/users/login/")
-async def authenticate_user_endpoint(user: models_users.UserToLogin):
+async def authenticate_user_endpoint(user: models_users.UserToLogin, response: Response):
     """
     Receives email and password and returns a jwt token if user is authenticated.
     """
     print(f"received user: {user}")
     authentication = await authenticate_user(user)
-    if authentication:
-        response = JSONResponse(content=authentication["token"])
-        response.set_cookie(
-            key="token",
-            value=authentication["token"],
-            httponly=True,
-            max_age=int(os.environ['JWT_EXPIRATION_TIME']),
-            secure=False,
-            samesite="None"
-        )
-
-        return response
-    else:
+    if not authentication:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    response.set_cookie(
+        key="token",
+        value=f"Bearer {authentication}",
+        httponly=True,
+        max_age=int(os.environ['JWT_EXPIRATION_TIME']),
+        secure=True,
+        samesite="None",
+    )
+    return {"detail": "User authenticated with success"}
     
-
 @app.get("/users/validate_token/")
-async def validate_jwt_endpoint(request: Request, token: str = Cookie(None)):
+async def validate_jwt_endpoint(request: Request):
     """
     Validates if the jwt received on the cookies are valid or not
     """
-    print(f'request: {request.__dict__}')
-    print(f'received token: {token}')
-    if token is None:
-        print('entered exception')
-        raise models_users.CredentialsException()
-    else: 
-        print(f'token: {token}')
-        return await authenticate_token(token)
+    print(request.cookies)
+
+    # if token is None:
+    #     print('entered exception')
+    #     raise models_users.CredentialsException()
+    # else: 
+    #     print(f'token: {token}')
+    #     return await authenticate_token(token)
 
