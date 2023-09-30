@@ -118,3 +118,10 @@ async def validate_jwt_endpoint(request: Request):
     #     print(f'token: {token}')
     #     return await authenticate_token(token)
 
+@app.get("/users/logout")
+async def logout(response: Response):
+    """
+    Logout the user by deleting the token cookie
+    """
+    response.delete_cookie(key="token")
+    return {"detail": "User logged out successfully"}
