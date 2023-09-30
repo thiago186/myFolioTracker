@@ -9,6 +9,7 @@ import NotLoggedPage from './pages/NotLoggedPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Home from './pages/Home';
 import useSubmit from './hooks/useSubmit';
+import LogoutPage from './pages/Logout';
 
 // import { defineConfig, loadEnv } from 'vite';
 const teste = `${import.meta.env.VITE_API_URL}/users/login`;
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/" element={<Navigate to="/login"/>}/>
                 <Route path="/home" element={<Home/>}/>
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/logout" element={<LogoutPage/>} />
                 <Route path="/loggedout" element={<NotLoggedPage/>} />
                 <Route path="*" element={<NotFoundPage/>} />
             </Routes> 

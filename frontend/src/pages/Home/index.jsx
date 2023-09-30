@@ -36,28 +36,26 @@ function Home() {
     useEffect(() => {
         console.log("inside");
         validateToken();
-    }, []);
+    }, []);    
+
+    const handleLogout = () => {
+        navigate("/logout");
+    }
 
     if (error) {
         console.log(error)
-        return (
-            <div>
-                <h1> Desculpe, mas essa página só está disponível para usuários logados</h1>
-                <button onClick= {handleClick}>Ir para a página de login</button>
-            </div>
-        )
+        navigate("/loggedout");
     } else {
         if (!isLoading){
             return (
                 <div>
                     <h1>This is the home page for logged users</h1>
+                    <button onClick={handleLogout}>Logout</button>
                 </div>
             );
         }
         
     }
-
-    
 }
 
 export default Home;
