@@ -34,13 +34,15 @@ async def authenticate_user(user: UserToLogin):
     return token
 
 async def authenticate_token(token: str):
+    if token.startswith("Bearer "):
+        token = token[7:]
     try:
         decoded_token = jwt.decode(
             token,
             key=os.environ["JWT_SECRET_KEY"],
             algorithms=[os.environ['JWT_ALGORITHM']]
         )
-        return {"authenticated": True, "reason": "Valid Token"}
+        return {"authenticated": True, "reason": "Valid Token", "userid": decoded_token["sub"]}
 
     except jwt.ExpiredSignatureError:
         return {"authenticated": False, "reason": "Token expired"}

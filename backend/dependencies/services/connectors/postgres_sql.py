@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 
 
 from dependencies.models.users import UserToRegister
-from dependencies.services.connectors.db_table_models import Users
+from dependencies.models.assets import Transaction
+import dependencies.services.connectors.db_table_models as db_table_models
 from dependencies.utils.hash import encrypt_field, verify_field
 
 
@@ -21,6 +22,16 @@ POSTGRESQL_URL = (
 )
 
 engine = create_engine(POSTGRESQL_URL, echo=os.environ["SQL_ECHO"].lower()=="true")
+
+def build_tables(password):
+    """
+    Create all tables that don't exist in the database. This function is only available for the admin user.
+    """
+    if verify_field(password, os.environ["USERS_RESET_PASSWORD_ENCRYPTED"]):
+        SQLModel.metadata.create_all(engine)
+    else:
+        print("You don't have permission to do this. Users will not be reseted.")
+
 
 def reset_tables(password):
     """
@@ -38,7 +49,7 @@ async def register_user(user_infos: UserToRegister):
     Resgister a new user in the database.
     """
     print("function called!")
-    user = Users(
+    user = db_table_models.Users(
         username=user_infos.username,
         email=user_infos.email,
         hashed_password=user_infos.hashed_password,
@@ -56,6 +67,14 @@ async def get_user_by_email(email):
     Get a user by its email.
     """
     with Session(engine) as session:
-        statement = select(Users).where(Users.email == email)
+        statement = select(db_table_models.Users).where(db_table_models.Users.email == email)
         users = session.exec(statement)
         return users.first()
+    
+async def save_transaction(transaction: Transaction):
+    """
+    Save a transaction in the database.
+    """
+    with Session(engine) as session:
+        session.add(**transaction.dict())
+        session.commit()

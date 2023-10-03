@@ -12,15 +12,14 @@ from fastapi.responses import JSONResponse
 
 from dependencies.utils.hash import encrypt_field, verify_field
 import dependencies.models.users as models_users
+import dependencies.models.assets as models_assets
 from dependencies.models.auth import JWToken
 from dependencies.business_logic.authentication import (
     authenticate_user,
     authenticate_token
 )
-from dependencies.services.connectors.postgres_sql import (
-    register_user,
-    get_user_by_email
-)
+from dependencies.business_logic.transactions import process_transaction
+import dependencies.services.connectors.postgres_sql as postgres_sql
 
 
 load_dotenv()
@@ -29,6 +28,7 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(level
 
 app = FastAPI()
 security = HTTPBearer()
+background_tasks = BackgroundTasks()
 
 origins = [
     "http://localhost:3000",
@@ -65,14 +65,14 @@ async def register_user_endpoint(user: models_users.UserToRegister):
      - 
     """
 
-    user_exists = await get_user_by_email(user.email)
+    user_exists = await postgres_sql.get_user_by_email(user.email)
     # print(f"user_exists: {user_exists}")
     if user_exists:
         raise HTTPException(status_code=409, detail="Email already registered")
     else:
         user.hashed_password = encrypt_field(user.password)
         try: 
-            await register_user(user)
+            await postgres_sql.register_user(user)
             return {"status_code": 201, "detail": "User created"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -103,20 +103,13 @@ async def validate_jwt_endpoint(request: Request):
     Validates if the jwt received on the cookies are valid or not
     """
     token = request.cookies.get("token")
-    if token:
-        if token.startswith("Bearer "):
-            token = token[7:]
-        authentication = await authenticate_token(token)
-        if authentication["authenticated"]:
-            return {"detail": "Token is valid"}
+    print(f"token received: {token}")
+    authentication = await authenticate_token(token)
+    if authentication["authenticated"]:
+        return {"detail": "Token is valid"}
     else:
         raise HTTPException(status_code=401, detail="Token not provided")
-    # if token is None:
-    #     print('entered exception')
-    #     raise models_users.CredentialsException()
-    # else: 
-    #     print(f'token: {token}')
-    #     return await authenticate_token(token)
+    
 
 @app.get("/users/logout")
 async def logout(response: Response):
@@ -129,3 +122,20 @@ async def logout(response: Response):
         samesite="None"
         )
     return {"detail": "User logged out successfully"}
+
+@app.post("/transactions/new_transaction/")
+async def new_transaction(request: Request, transaction: models_assets.Transaction):
+    """
+    Register a new transaction in the database
+    """
+    print(f'request received: {request.cookies}')
+    decoded_token = await authenticate_token(request.cookies.get("token"))
+    print(f'decoded token: {decoded_token}')
+    if not decoded_token['authenticated']:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    
+    transaction.owner_id = decoded_token['userid']
+    transaction = await process_transaction(transaction)
+
+    background_tasks.add_task(postgres_sql.save_transaction, transaction)
+    
